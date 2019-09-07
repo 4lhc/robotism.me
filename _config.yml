@@ -1,20 +1,22 @@
 # Site
-title:              Massively
-bio:                'Jekyll version of the Massively theme by HTML5UP'
-description:        "Jekyll version of the Massively theme by HTML5UP"
+title:              Robotically
+bio:                'A platform to document my robotics learnings.'
+description:        "A platform to document my robotics learnings."
 locale:             en_US
 baseurl: "" # the subpath of your site, e.g. /blog
-url: "" # the base hostname & protocol for your site
+url: "https://4lhc.github.io" # the base hostname & protocol for your site
 
 # Comments
-disqus_shortname:   default
+disqus_shortname:   robotically
 
 # Social
 analytics-id:       "default"
 twitter:            default
 facebook:           default
 instagram:          default
-github:             default
+linkedin:           in/sreejith-pillai-2628b6155
+github:             4lhc
+researchgate:       Sreejith_S_Pillai2
 
 # personal
 location:           Los Angeles, CA
