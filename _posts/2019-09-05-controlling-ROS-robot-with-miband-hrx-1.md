@@ -7,6 +7,7 @@ comments: true
 image: "/images/pic02.jpg"
 ---
 
+
 ## Understanding Miband BLE Services and Characteristics
 Just go ahead and read up on [how to install Jekyll](https://jekyllrb.com/). It's not too hard I promise!
 
