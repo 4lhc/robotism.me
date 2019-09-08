@@ -7,8 +7,13 @@ comments: true
 image: "/images/pic02.jpg"
 ---
 
+
+
 ## How to Use This Theme
-Just go ahead and read up on [how to install Jekyll](https://jekyllrb.com/). It's not too hard I promise!
+
+
+test
+go ahead and read up on [how to install Jekyll](https://jekyllrb.com/). It's not too hard I promise!
 
 Download this repository [here](https://github.com/iwiedenm/jekyll-theme-massively) and save it to any folder you want.
 

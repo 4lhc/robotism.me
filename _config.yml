@@ -1,10 +1,10 @@
 # Site
-title:              Robotically
+title:              Robotism
 bio:                'A platform to document my robotics learnings.'
 description:        "A platform to document my robotics learnings."
 locale:             en_US
 baseurl: "" # the subpath of your site, e.g. /blog
-url: "https://4lhc.github.io" # the base hostname & protocol for your site
+url: "https://robotism.me" # the base hostname & protocol for your site
 
 # Comments
 disqus_shortname:   robotically
