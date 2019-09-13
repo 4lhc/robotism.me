@@ -1,38 +1,50 @@
 ---
 layout: post
-title:  "Controlling ROS Turtlebot3 with Miband"
+title:  "Controlling ROS Turtlebot3 with Miband - Part I"
 date:   2019-09-01
-excerpt: "Reading raw accelerometer data from a Xiaomi Miband and control a ROS simulation bot with it"
+excerpt: "Reading raw accelerometer data from a Xiaomi Miband and controllling a ROS simulation bot with it"
 comments: true
 image: "/images/controlling-ROS-robot-with-miband-hrx-1-img01.png"
 image1: "/images/controlling-ROS-robot-with-miband-hrx-1-img02.png"
 image2: "/images/controlling-ROS-robot-with-miband-hrx-1-img03.gif"
+categories: [BLE, ROS]
+tags: [MiBand, BLE, ROS]
 ---
 
 
-Library to work with Xiaomi MiBand HRX Edition Accelerometer Data. Intended for extraction of accelerometer data only,
-for experimentaions with ROS and gesture recognition. Check out the ROS interfacing example [here](https://github.com/4lhc/ROS/tree/master/learning_ws/src/x1_miband_control).
+I wanted to control my Turtlebot3 gazebo simulations using the Xiaomi MiBand HRX. MiBand uses Bluetooth Low Energy to communicate. The major challenge was understanding the undocumented services and characteristics. Fortunately, there are several python libraries that are written for other MiBand models. So, I didn't have to start from scratch!
 
-I couldn't find a solution that worked with MiBand HRX edition. This repo is forked from [creotiv/MiBand2](https://github.com/creotiv/MiBand2) and modified to work with HRX bands.
+Still, the challenge of finding the right services & values remained. I started by forking [this](https://github.com/creotiv/MiBand2) wonderful library which used bluepy. I was only interested in the accelerometer data.
 
-The following commands were helpful in identification of services and characteristics specific to HRX bands. Xiaomi doesn't provide user descriptions for the services and characteristics, which makes it harder. There are plenty of reverse engineered solutions for MiBand2 & 3 which were extremely [helpful](#sources--references).
+Check out the ROS interfacing example [here](https://github.com/4lhc/ROS/tree/master/learning_ws/src/x1_miband_control).
 
-### List services
 
+So, let's begin by identifying the MAC address of the MiBand!
+
+### 1. BLE - connecting and reading data
+An excellent place to learn about BLE GATT Services and Characteristics would be [here](https://www.oreilly.com/library/view/getting-started-with/9781491900550/ch04.html).
+#### Scan for available devices
+```sh
+sudo hcitool lescan
+```
+
+
+The following commands were helpful in identification of services and characteristics specific to HRX bands. Xiaomi doesn't provide user descriptions for the services and characteristics, which makes it harder. There are plenty of reverse engineered solutions for MiBand2 & 3 which are extremely [helpful](#sources--references).
+
+#### List services
 ```sh
 gatttool -b <MAC-ADDRESS> -t random --primary
 ```
 
-### List characteristics
-
+#### List characteristics
 ```sh
 gatttool -b <MAC-ADDRESS> -t random --characteristics
 ```
 
 
-## BLE
+#### Auth and notifications
 - Authentication is same as MiBand2
-- Services & Characteristics of interest
+- Services & Characteristics of interest (names are arbitrary)
 
     - ``SERVICE_MIBAND1 : "0000fee1-0000-1000-8000-00805f9b34fb"``
         - ``CHARACTERISTIC_SENSOR_CONTROL : "00000001-0000-3512-2118-0009af100700"``
@@ -43,9 +55,11 @@ gatttool -b <MAC-ADDRESS> -t random --characteristics
     - Write without response ``0x02`` to service ``0000fee1-0000-1000-8000-00805f9b34fb`` characeteristic ``00000001-0000-3512-2118-0009af100700``
     - Write ``0x0100`` to notification descriptor to enable notification
 
-# Processing Accelerometer Data
+### 2. Processing Accelerometer Data
 
-## Parsing
+After successfully reading the raw accelerometer data, the next step would be to make sense of it.
+
+#### Parsing
 Data received in packets of byte size ``20``, ``14`` or ``8``.
 
 Sample: ``0x0100 0500 8200 0b00 0400 8000 0b00 0300 8100 0b00``
@@ -55,7 +69,7 @@ Sample: ``0x0100 0500 8200 0b00 0400 8000 0b00 0300 8100 0b00``
 |:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
 | -  | signed x  |signed y   | signed z  |  signed x |  signed y | signed z  | signed x  | signed y  |  signed z |
 
-## Calculating Roll and Pitch
+#### Calculating Roll and Pitch
 In the absence of linear acceleration, the accelerometer output is a measurement of the rotated
 gravitational field vector and can be used to determine the accelerometer pitch and roll orientation
 angles.
@@ -92,30 +106,3 @@ angles.
 
 7) [creotiv donate link](https://github.com/creotiv/MiBand2#donate)
 
-
-
-## Run
-
-1) Install dependencies
-```sh
-pip install -r requirements.txt
-```
-2) Turn on your Bluetooth
-3) Unpair you MiBand from current mobile apps
-4) Find out you MiBand MAC address
-```sh
-sudo hcitool lescan
-```
-5) Run this to auth device
-```sh
-python example.py --mac MAC_ADDRESS --init
-```
-6) Run this to get live accel data from the device
-```sh
-python example.py --live --mac MAC_ADDRESS
-python example.py --help
-```
-7) If you having problems(BLE can glitch sometimes) try this and repeat from 4)
-```sh
-sudo hciconfig hci0 reset
-```
