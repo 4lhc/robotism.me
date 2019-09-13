@@ -60,7 +60,7 @@ gatttool -b <MAC-ADDRESS> -t random --characteristics
 After successfully reading the raw accelerometer data, the next step would be to make sense of it.
 
 #### Parsing
-Data received in packets of byte size ``20``, ``14`` or ``8``.
+The data is received in packets of byte size ``20``, ``14`` or ``8``.
 
 Sample: ``0x0100 0500 8200 0b00 0400 8000 0b00 0300 8100 0b00``
 
@@ -72,7 +72,7 @@ Sample: ``0x0100 0500 8200 0b00 0400 8000 0b00 0300 8100 0b00``
 #### Calculating Roll and Pitch
 In the absence of linear acceleration, the accelerometer output is a measurement of the rotated
 gravitational field vector and can be used to determine the accelerometer pitch and roll orientation
-angles.
+angles. The below equations can be used to calculate the roll and pitch from the 3 linear accelerations.
 <!--<p align="center">-->
 <div class="box">
 {% raw %}
@@ -83,7 +83,14 @@ angles.
  </div>
 <!--</p>-->
 
-## Plot
+```python
+roll = math.atan2(gy, gz)
+pitch = math.atan2(-gx, math.sqrt(pow(gy, 2) + pow(gz, 2)))
+```
+[view on github](https://github.com/4lhc/MiBand_HRX/blob/1711a218ab66bfba25aa7de717452574301dcba5/base.py#L267)
+
+
+#### Plot
 
 <div class="image main">
 <img src="{{page.image2 | absolute_url}}" width="1200">
@@ -91,18 +98,18 @@ angles.
 
 
 
-## Sources & References
-1) [Base lib provided by Leo Soares](https://github.com/leojrfs/miband2)
+### 3. Sources & References
+[1] [Base lib provided by Leo Soares](https://github.com/leojrfs/miband2)
 
-2) [Volodymyr Shymanskyy](https://github.com/vshymanskyy/miband2-python-test)
+[2] [Volodymyr Shymanskyy](https://github.com/vshymanskyy/miband2-python-test)
 
-3) [Freeyourgadget Team](https://github.com/Freeyourgadget/Gadgetbridge/tree/master/app/src/main/java/nodomain/freeyourgadget/gadgetbridge/service/devices/huami/miband2)
+[3] [Freeyourgadget Team](https://github.com/Freeyourgadget/Gadgetbridge/tree/master/app/src/main/java/nodomain/freeyourgadget/gadgetbridge/service/devices/huami/miband2)
 
-4) [ragcsalo's Comment](https://github.com/Freeyourgadget/Gadgetbridge/issues/63#issuecomment-493740447)
+[4] [ragcsalo's Comment](https://github.com/Freeyourgadget/Gadgetbridge/issues/63#issuecomment-493740447)
 
-5) [Xiaomi band protocol analyze](http://changy-.github.io/articles/xiao-mi-band-protocol-analyze.html)
+[5] [Xiaomi band protocol analyze](http://changy-.github.io/articles/xiao-mi-band-protocol-analyze.html)
 
-6) [Tilt Sensing Using 3-Axis Accelerometer](https://www.nxp.com/docs/en/application-note/AN3461.pdf)
+[6] [Tilt Sensing Using 3-Axis Accelerometer](https://www.nxp.com/docs/en/application-note/AN3461.pdf)
 
-7) [creotiv donate link](https://github.com/creotiv/MiBand2#donate)
+[7] [creotiv donate link](https://github.com/creotiv/MiBand2#donate)
 
