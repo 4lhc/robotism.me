@@ -14,10 +14,16 @@ I am Sreejith S, a graduate student in Robotics and Automation. _Robotism_ is a 
 ### My interests
 <div class="box">
   <p>
-  Swarm Intelligence
-  Robot Operating System
-  Nonlinear Control Theory
-  Machine Vision
-  Visual SLAM
+  <ul class="actions">
+  <li><a href="#" class="button">Swarm Intelligence</a></li>
+  <li><a href="#" class="button">Robot Operating System</a></li>
+  </ul>
+  <ul class="actions">
+  <li><a href="#" class="button">Nonlinear Control Theory</a></li>
+  <li><a href="#" class="button">Machine Vision</a></li>
+  </ul>
+  <ul class="actions">
+  <li><a href="#" class="button">Visual SLAM</a></li>
+  </ul>
   </p>
 </div>
