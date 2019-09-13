@@ -7,14 +7,15 @@ comments: true
 image: "/images/controlling-ROS-robot-with-miband-hrx-1-img01.png"
 image1: "/images/controlling-ROS-robot-with-miband-hrx-1-img02.png"
 image2: "/images/controlling-ROS-robot-with-miband-hrx-1-img03.gif"
+gh_basepy: "https://github.com/4lhc/MiBand_HRX/blob/1711a218ab66bfba25aa7de717452574301dcba5/base.py"
 categories: [BLE, ROS]
 tags: [MiBand, BLE, ROS]
 ---
 
 
-I wanted to control my Turtlebot3 gazebo simulations using the Xiaomi MiBand HRX. MiBand uses Bluetooth Low Energy to communicate. The major challenge was understanding the undocumented services and characteristics. Fortunately, there are several python libraries that are written for other MiBand models. So, I didn't have to start from scratch!
+I wanted to control my Turtlebot3 gazebo simulations using the Xiaomi MiBand HRX. MiBand uses Bluetooth Low Energy for communication. The major challenge in trying to interface the MiBand HRX with ROS, was understanding the undocumented services and characteristics. Fortunately, there are several python libraries that are written for MiBand2 & 3 models. So, I didn't have to start from scratch!
 
-Still, the challenge of finding the right services & values remained. I started by forking [this](https://github.com/creotiv/MiBand2) wonderful library which used bluepy. I was only interested in the accelerometer data.
+Still, the challenge of finding the right services & values remained. I started by forking [this](https://github.com/creotiv/MiBand2) wonderful library by creotiv which used bluepy. I was only interested in reading the accelerometer data.
 
 Check out the ROS interfacing example [here](https://github.com/4lhc/ROS/tree/master/learning_ws/src/x1_miband_control).
 
@@ -55,6 +56,8 @@ gatttool -b <MAC-ADDRESS> -t random --characteristics
     - Write without response ``0x02`` to service ``0000fee1-0000-1000-8000-00805f9b34fb`` characeteristic ``00000001-0000-3512-2118-0009af100700``
     - Write ``0x0100`` to notification descriptor to enable notification
 
+
+
 ### 2. Processing Accelerometer Data
 
 After successfully reading the raw accelerometer data, the next step would be to make sense of it.
@@ -69,25 +72,42 @@ Sample: ``0x0100 0500 8200 0b00 0400 8000 0b00 0300 8100 0b00``
 |:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
 | -  | signed x  |signed y   | signed z  |  signed x |  signed y | signed z  | signed x  | signed y  |  signed z |
 
+Parsing of raw data is performed by the method ``_parse_raw_accel()``.
+
+{% highlight python %}
+def _parse_raw_accel(self, bytes):
+    for i in range(int((len(bytes)-2)/6)):
+        g = struct.unpack('hhh', bytes[2 + i * 6:8 + i * 6])
+        try:
+            self.accel_queue.put(g)
+        except Full:
+            self.accel_queue.get_nowait()
+            self.accel_queue.put(g)
+        return g
+{% endhighlight %}
+[view on github]({{page.gh_basepy}}#L147)
+
 #### Calculating Roll and Pitch
 In the absence of linear acceleration, the accelerometer output is a measurement of the rotated
 gravitational field vector and can be used to determine the accelerometer pitch and roll orientation
-angles. The below equations can be used to calculate the roll and pitch from the 3 linear accelerations.
-<!--<p align="center">-->
+angles. The following equations are used to calculate the roll and pitch from the 3 linear accelerations.
+
 <div class="box">
+
 {% raw %}
   $$tan\phi_{xyz} = \left ( \frac{G_{py}} {G_{pz}} \right )$$
 
   $$tan\theta_{xyz} = \left ( \frac{-G_{px}} {\sqrt{G_{py}^{2} + G_{pz}^{2}}} \right )$$
- {% endraw %}
- </div>
-<!--</p>-->
+{% endraw %}
 
-```python
+</div>
+
+
+{% highlight python %}
 roll = math.atan2(gy, gz)
 pitch = math.atan2(-gx, math.sqrt(pow(gy, 2) + pow(gz, 2)))
-```
-[view on github](https://github.com/4lhc/MiBand_HRX/blob/1711a218ab66bfba25aa7de717452574301dcba5/base.py#L267)
+{% endhighlight %}
+[view on github]({{page.gh_basepy}}#L267)
 
 
 #### Plot

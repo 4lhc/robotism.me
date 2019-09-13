@@ -92,6 +92,9 @@
 					&:nth-child(2n + 1) {
 						background-color: _palette($p, border-bg);
 					}
+                    td {
+                        border-color: _palette($p, border);
+                    }
 				}
 			}
 
