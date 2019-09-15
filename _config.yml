@@ -54,12 +54,13 @@ sass:
   style:            compressed
 
 # Gems
-gems:
+plugins:
   - jekyll-mentions
   - jekyll-sitemap
   - jekyll-feed
   - jekyll-gist
   - jekyll-paginate
+  - jekyll-seo-tag
 
 paginate: 6
 paginate_path: "/blog/page:num/"
