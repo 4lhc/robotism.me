@@ -1,15 +1,17 @@
 ---
 layout: post
 title:  "Controlling ROS Turtlebot3 with Miband - Part I"
-date:   2019-09-01
+date:   2019-09-05
 excerpt: "Reading raw accelerometer data from a Xiaomi Miband and controllling a ROS simulation bot with it"
 comments: true
 image: "/images/controlling-ROS-robot-with-miband-hrx-1-img01.png"
 image1: "/images/controlling-ROS-robot-with-miband-hrx-1-img02.png"
 image2: "/images/controlling-ROS-robot-with-miband-hrx-1-img03.gif"
 gh_basepy: "https://github.com/4lhc/MiBand_HRX/blob/1711a218ab66bfba25aa7de717452574301dcba5/base.py"
-categories: [BLE, ROS]
-tags: [MiBand, BLE, ROS]
+gh_repo: "https://github.com/4lhc/MiBand_HRX"
+jupyter_NB: "https://github.com/4lhc/MiBand_HRX/blob/master/Notebook.ipynb"
+categories: [ROS]
+tags: [MiBand, BLE, ROS, python]
 ---
 
 
@@ -17,7 +19,7 @@ I wanted to control my Turtlebot3 gazebo simulations using the Xiaomi MiBand HRX
 
 Still, the challenge of finding the right services & values remained. I started by forking [this](https://github.com/creotiv/MiBand2) wonderful library by creotiv which used bluepy. I was only interested in reading the accelerometer data.
 
-Check out the ROS interfacing example [here](https://github.com/4lhc/ROS/tree/master/learning_ws/src/x1_miband_control).
+Check out the repo [here]({{page.gh_repo}}).
 
 
 So, let's begin by identifying the MAC address of the MiBand!
@@ -111,6 +113,7 @@ pitch = math.atan2(-gx, math.sqrt(pow(gy, 2) + pow(gz, 2)))
 
 
 #### Plot
+[Jupyter Notebook]({{jupyter_NB}})
 
 <div class="image main">
 <img src="{{page.image2 | absolute_url}}" width="1200">
