@@ -1,0 +1,406 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+<generator uri="http://jekyllrb.com" version="3.6.3">Jekyll</generator>
+<link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" />
+<link href="http://localhost:4000/" rel="alternate" type="text/html" />
+<updated>2019-09-19T01:02:18+05:30</updated>
+<id>http://localhost:4000/</id>
+<subtitle>A platform to document my robotics learnings.</subtitle>
+<entry>
+<title>Controlling ROS Turtlebot3 with Miband - Part I</title>
+<link href="http://localhost:4000/blog/controlling-ROS-robot-with-miband-hrx-test/" rel="alternate" type="text/html" title="Controlling ROS Turtlebot3 with Miband - Part I" />
+<published>2019-09-16T00:00:00+05:30</published>
+<updated>2019-09-16T00:00:00+05:30</updated>
+<id>http://localhost:4000/blog/controlling-ROS-robot-with-miband-hrx-test</id>
+<content type="html" xml:base="http://localhost:4000/blog/controlling-ROS-robot-with-miband-hrx-test/">&lt;p&gt;I wanted to control my Turtlebot3 gazebo simulations using the Xiaomi MiBand HRX. MiBand uses Bluetooth Low Energy for communication. The major challenge in trying to interface the MiBand HRX with ROS, was understanding the undocumented services and characteristics. Fortunately, there are several python libraries that are written for MiBand2 &amp;amp; 3 models. So, I didn’t have to start from scratch!&lt;/p&gt;
+
+&lt;p&gt;Still, the challenge of finding the right services &amp;amp; values remained. I started by forking &lt;a href=&quot;https://github.com/creotiv/MiBand2&quot;&gt;this&lt;/a&gt; wonderful library by creotiv which used bluepy. I was only interested in reading the accelerometer data.&lt;/p&gt;
+
+&lt;p&gt;Check out the repo &lt;a href=&quot;{{page.gh_repo}}&quot;&gt;here&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;So, let’s begin by identifying the MAC address of the MiBand!&lt;/p&gt;
+
+&lt;h3 id=&quot;1-ble---connecting-and-reading-data&quot;&gt;1. BLE - connecting and reading data&lt;/h3&gt;
+&lt;p&gt;An excellent place to learn about BLE GATT Services and Characteristics would be &lt;a href=&quot;https://www.oreilly.com/library/view/getting-started-with/9781491900550/ch04.html&quot;&gt;here&lt;/a&gt;.&lt;/p&gt;
+&lt;h4 id=&quot;scan-for-available-devices&quot;&gt;Scan for available devices&lt;/h4&gt;
+&lt;div class=&quot;language-sh highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;hcitool lescan
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;The following commands were helpful in identification of services and characteristics specific to HRX bands. Xiaomi doesn’t provide user descriptions for the services and characteristics, which makes it harder. There are plenty of reverse engineered solutions for MiBand2 &amp;amp; 3 which are extremely &lt;a href=&quot;#sources--references&quot;&gt;helpful&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h4 id=&quot;list-services&quot;&gt;List services&lt;/h4&gt;
+&lt;div class=&quot;language-sh highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;gatttool &lt;span class=&quot;nt&quot;&gt;-b&lt;/span&gt; &amp;lt;MAC-ADDRESS&amp;gt; &lt;span class=&quot;nt&quot;&gt;-t&lt;/span&gt; random &lt;span class=&quot;nt&quot;&gt;--primary&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h4 id=&quot;list-characteristics&quot;&gt;List characteristics&lt;/h4&gt;
+&lt;div class=&quot;language-sh highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;gatttool &lt;span class=&quot;nt&quot;&gt;-b&lt;/span&gt; &amp;lt;MAC-ADDRESS&amp;gt; &lt;span class=&quot;nt&quot;&gt;-t&lt;/span&gt; random &lt;span class=&quot;nt&quot;&gt;--characteristics&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h4 id=&quot;auth-and-notifications&quot;&gt;Auth and notifications&lt;/h4&gt;
+&lt;ul&gt;
+  &lt;li&gt;Authentication is same as MiBand2&lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Services &amp;amp; Characteristics of interest (names are arbitrary)&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;SERVICE_MIBAND1 : &quot;0000fee1-0000-1000-8000-00805f9b34fb&quot;&lt;/code&gt;
+        &lt;ul&gt;
+          &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;CHARACTERISTIC_SENSOR_CONTROL : &quot;00000001-0000-3512-2118-0009af100700&quot;&lt;/code&gt;&lt;/li&gt;
+          &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;CHARACTERISTIC_SENSOR_MEASURE : &quot;00000002-0000-3512-2118-0009af100700&quot;&lt;/code&gt;&lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;To receive accelerometer notification
+    &lt;ul&gt;
+      &lt;li&gt;Write without response &lt;code class=&quot;highlighter-rouge&quot;&gt;0x010119&lt;/code&gt; to service &lt;code class=&quot;highlighter-rouge&quot;&gt;0000fee1-0000-1000-8000-00805f9b34fb&lt;/code&gt; characeteristic &lt;code class=&quot;highlighter-rouge&quot;&gt;00000001-0000-3512-2118-0009af100700&lt;/code&gt;&lt;/li&gt;
+      &lt;li&gt;Write without response &lt;code class=&quot;highlighter-rouge&quot;&gt;0x02&lt;/code&gt; to service &lt;code class=&quot;highlighter-rouge&quot;&gt;0000fee1-0000-1000-8000-00805f9b34fb&lt;/code&gt; characeteristic &lt;code class=&quot;highlighter-rouge&quot;&gt;00000001-0000-3512-2118-0009af100700&lt;/code&gt;&lt;/li&gt;
+      &lt;li&gt;Write &lt;code class=&quot;highlighter-rouge&quot;&gt;0x0100&lt;/code&gt; to notification descriptor to enable notification&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;2-processing-accelerometer-data&quot;&gt;2. Processing Accelerometer Data&lt;/h3&gt;
+
+&lt;p&gt;After successfully reading the raw accelerometer data, the next step would be to make sense of it.&lt;/p&gt;
+
+&lt;h4 id=&quot;parsing&quot;&gt;Parsing&lt;/h4&gt;
+&lt;p&gt;The data is received in packets of byte size &lt;code class=&quot;highlighter-rouge&quot;&gt;20&lt;/code&gt;, &lt;code class=&quot;highlighter-rouge&quot;&gt;14&lt;/code&gt; or &lt;code class=&quot;highlighter-rouge&quot;&gt;8&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;Sample: &lt;code class=&quot;highlighter-rouge&quot;&gt;0x0100 0500 8200 0b00 0400 8000 0b00 0300 8100 0b00&lt;/code&gt;&lt;/p&gt;
+
+&lt;table&gt;
+  &lt;thead&gt;
+    &lt;tr&gt;
+      &lt;th style=&quot;text-align: center&quot;&gt;0100&lt;/th&gt;
+      &lt;th style=&quot;text-align: center&quot;&gt;0500&lt;/th&gt;
+      &lt;th style=&quot;text-align: center&quot;&gt;8200&lt;/th&gt;
+      &lt;th style=&quot;text-align: center&quot;&gt;0b00&lt;/th&gt;
+      &lt;th style=&quot;text-align: center&quot;&gt;0400&lt;/th&gt;
+      &lt;th style=&quot;text-align: center&quot;&gt;8000&lt;/th&gt;
+      &lt;th style=&quot;text-align: center&quot;&gt;0b00&lt;/th&gt;
+      &lt;th style=&quot;text-align: center&quot;&gt;0300&lt;/th&gt;
+      &lt;th style=&quot;text-align: center&quot;&gt;8100&lt;/th&gt;
+      &lt;th style=&quot;text-align: center&quot;&gt;0b00&lt;/th&gt;
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;-&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;signed x&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;signed y&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;signed z&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;signed x&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;signed y&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;signed z&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;signed x&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;signed y&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;signed z&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;p&gt;Parsing of raw data is performed by the method &lt;code class=&quot;highlighter-rouge&quot;&gt;_parse_raw_accel()&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;{% highlight python %}
+def _parse_raw_accel(self, bytes):
+    for i in range(int((len(bytes)-2)/6)):
+        g = struct.unpack(‘hhh’, bytes[2 + i * 6:8 + i * 6])
+        try:
+            self.accel_queue.put(g)
+        except Full:
+            self.accel_queue.get_nowait()
+            self.accel_queue.put(g)
+        return g
+{% endhighlight %}
+&lt;a href=&quot;{{page.gh_basepy}}#L147&quot;&gt;view on github&lt;/a&gt;&lt;/p&gt;
+
+&lt;h4 id=&quot;calculating-roll-and-pitch&quot;&gt;Calculating Roll and Pitch&lt;/h4&gt;
+&lt;p&gt;In the absence of linear acceleration, the accelerometer output is a measurement of the rotated
+gravitational field vector and can be used to determine the accelerometer pitch and roll orientation
+angles. The following equations are used to calculate the roll and pitch from the 3 linear accelerations.&lt;/p&gt;
+
+&lt;div class=&quot;box&quot;&gt;
+
+{% raw %}
+  $$tan\phi_{xyz} = \left ( \frac{G_{py}} {G_{pz}} \right )$$
+
+  $$tan\theta_{xyz} = \left ( \frac{-G_{px}} {\sqrt{G_{py}^{2} + G_{pz}^{2}}} \right )$$
+{% endraw %}
+
+&lt;/div&gt;
+
+&lt;p&gt;{% highlight python %}
+roll = math.atan2(gy, gz)
+pitch = math.atan2(-gx, math.sqrt(pow(gy, 2) + pow(gz, 2)))
+{% endhighlight %}
+&lt;a href=&quot;{{page.gh_basepy}}#L267&quot;&gt;view on github&lt;/a&gt;&lt;/p&gt;
+
+&lt;h4 id=&quot;plot&quot;&gt;Plot&lt;/h4&gt;
+&lt;p&gt;&lt;a href=&quot;{{jupyter_NB}}&quot;&gt;Jupyter Notebook&lt;/a&gt;&lt;/p&gt;
+
+&lt;div class=&quot;image main&quot;&gt;
+&lt;img src=&quot;{{page.image2 | absolute_url}}&quot; width=&quot;1200&quot; /&gt;
+&lt;/div&gt;
+
+&lt;h3 id=&quot;3-sources--references&quot;&gt;3. Sources &amp;amp; References&lt;/h3&gt;
+&lt;p&gt;[1] &lt;a href=&quot;https://github.com/leojrfs/miband2&quot;&gt;Base lib provided by Leo Soares&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;[2] &lt;a href=&quot;https://github.com/vshymanskyy/miband2-python-test&quot;&gt;Volodymyr Shymanskyy&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;[3] &lt;a href=&quot;https://github.com/Freeyourgadget/Gadgetbridge/tree/master/app/src/main/java/nodomain/freeyourgadget/gadgetbridge/service/devices/huami/miband2&quot;&gt;Freeyourgadget Team&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;[4] &lt;a href=&quot;https://github.com/Freeyourgadget/Gadgetbridge/issues/63#issuecomment-493740447&quot;&gt;ragcsalo’s Comment&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;[5] &lt;a href=&quot;http://changy-.github.io/articles/xiao-mi-band-protocol-analyze.html&quot;&gt;Xiaomi band protocol analyze&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;[6] &lt;a href=&quot;https://www.nxp.com/docs/en/application-note/AN3461.pdf&quot;&gt;Tilt Sensing Using 3-Axis Accelerometer&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;[7] &lt;a href=&quot;https://github.com/creotiv/MiBand2#donate&quot;&gt;creotiv donate link&lt;/a&gt;&lt;/p&gt;
+
+</content>
+<category term="MiBand" />
+<category term="BLE" />
+<category term="ROS" />
+<category term="python" />
+<summary>Reading raw accelerometer data from a Xiaomi Miband for controllling a ROS Gazebo Turtlebot3 simulation.</summary>
+</entry>
+<entry>
+<title>Controlling ROS Turtlebot3 with Miband - Part II</title>
+<link href="http://localhost:4000/blog/controlling-ROS-robot-with-miband-hrx-2/" rel="alternate" type="text/html" title="Controlling ROS Turtlebot3 with Miband - Part II" />
+<published>2019-09-14T00:00:00+05:30</published>
+<updated>2019-09-14T00:00:00+05:30</updated>
+<id>http://localhost:4000/blog/controlling-ROS-robot-with-miband-hrx-2</id>
+<content type="html" xml:base="http://localhost:4000/blog/controlling-ROS-robot-with-miband-hrx-2/">&lt;p&gt;After successfully establishing communication &lt;a href=&quot;{% post_url 2019-09-05-controlling-ROS-robot-with-miband-hrx-1 %}&quot;&gt;(read Part I)&lt;/a&gt; with the MiBand HRX, we can start writing the controller node.&lt;/p&gt;
+
+&lt;p&gt;We will start by setting up project ros package.&lt;/p&gt;
+
+&lt;h3 id=&quot;1-setup&quot;&gt;1. Setup&lt;/h3&gt;
+&lt;p&gt;Create a package named &lt;code class=&quot;highlighter-rouge&quot;&gt;x1_miband_control&lt;/code&gt; with a dependency on rospy.
+{% highlight bash %}
+catkin_create_pkg x1_miband_control rospy
+cd x1_miband_control/src
+{% endhighlight %}&lt;/p&gt;
+
+&lt;p&gt;We have three other runtime dependencies to make the MiBand controller work. &lt;a href=&quot;https://github.com/dlitz/pycrypto&quot;&gt;PyCrypto&lt;/a&gt;, &lt;a href=&quot;https://github.com/IanHarvey/bluepy&quot;&gt;bluepy&lt;/a&gt; &amp;amp; the &lt;a href=&quot;https://github.com/4lhc/MiBand_HRX&quot;&gt;MiBand HRX&lt;/a&gt; library that we created in Part I.
+Once inside the &lt;code class=&quot;highlighter-rouge&quot;&gt;x1_miband_control/src&lt;/code&gt; directory we can clone the dependencies. Make sure that you checkout the right versions&lt;/p&gt;
+
+&lt;p&gt;{% highlight bash %}
+git clone -n https://github.com/4lhc/MiBand_HRX
+cd MiBand_HRX
+git checkout 1711a218ab66bfba25aa7de717452574301dcba5
+{% endhighlight %}&lt;/p&gt;
+
+&lt;p&gt;Repeat the same for the other dependencies. From &lt;code class=&quot;highlighter-rouge&quot;&gt;xi_miband_control/src&lt;/code&gt;
+{% highlight bash %}
+git clone -n https://github.com/dlitz/pycrypto
+cd pycrypto
+git checkout 7fd528d03b5eae58eef6fd219af5d9ac9c83fa50
+cd ..
+git clone -n https://github.com/IanHarvey/bluepy
+cd bluepy
+git checkout dc33285f31a873fab92c22e8839c44899f82b041
+{% endhighlight %}&lt;/p&gt;
+
+&lt;p&gt;Bluepy and pycrypto has to be built and installed using setup.py inside their respective directories. I am yet to find a way to automate the build of these dependencies using CmakeLists.txt. Inside both bluepy &amp;amp; pycrypto directories run,&lt;/p&gt;
+
+&lt;p&gt;{% highlight bash %}
+python setup.py build &amp;amp;&amp;amp; python setup.py install
+{% endhighlight %}&lt;/p&gt;
+
+&lt;p&gt;Furthermore, I had to move &lt;code class=&quot;highlighter-rouge&quot;&gt;xi_miband_control/src/bluepy/bluepy&lt;/code&gt; to &lt;code class=&quot;highlighter-rouge&quot;&gt;xi_miband_control/src/bluepy&lt;/code&gt; inorder for bluepy to work.&lt;/p&gt;
+
+&lt;p&gt;Next, we will create a setup.py in out package root with the following content and uncomment the &lt;code class=&quot;highlighter-rouge&quot;&gt;catkin_python_setup()&lt;/code&gt; macro in &lt;code class=&quot;highlighter-rouge&quot;&gt;CmakeLists.txt&lt;/code&gt; to make sure that our dependencies get installed.&lt;/p&gt;
+
+&lt;p&gt;{% highlight python %}
+{% github_sample /4lhc/ROS/blob/0006a7ac12131a579777117e9cc4e1e5f31f805e/learning_ws/src/x1_miband_control/setup.py %}
+{% endhighlight %}
+&lt;!--{% github_sample_ref /4lhc/ROS/blob/0006a7ac12131a579777117e9cc4e1e5f31f805e/learning_ws/src/x1_miband_control/setup.py %}--&gt;&lt;/p&gt;
+
+&lt;p&gt;Finally, run &lt;code class=&quot;highlighter-rouge&quot;&gt;catkin_make&lt;/code&gt; from the catkin workspace root to build everything.&lt;/p&gt;
+
+&lt;h3 id=&quot;2-miband-controller&quot;&gt;2. MiBand Controller&lt;/h3&gt;
+
+&lt;p&gt;We will start by importing the necessary modules. Multithreading is used to prevent the &lt;code class=&quot;highlighter-rouge&quot;&gt;band.start_raw_data_realtime()&lt;/code&gt; method from blocking.
+&lt;a href=&quot;{{page.gh_file1}}&quot;&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;generic_robot&lt;/code&gt;&lt;/a&gt; contains a simple &lt;code class=&quot;highlighter-rouge&quot;&gt;Robot()&lt;/code&gt; class definition.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;{{page.gh_file2}}#L42&quot;&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;vel_control()&lt;/code&gt;&lt;/a&gt; method sets the robot’s linear x velocity to a value proportional to the pitch of the MiBand and the angular z velocity to a value proportional to MiBand’s roll. It also applies a low pass filter to the roll &amp;amp; pitch.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;{{page.gh_file2}}#L27&quot;&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;start_control()&lt;/code&gt;&lt;/a&gt; will run as long as data is available from the MiBand. If the robot crashes into a wall, the method sends a vibration alert to the MiBand.&lt;/p&gt;
+
+&lt;p&gt;{% gist d42bba11b870be4c5860b00256fbec27 %}&lt;/p&gt;
+
+&lt;h3 id=&quot;3-test-run&quot;&gt;3 Test Run&lt;/h3&gt;
+
+&lt;p&gt;{% include youtube.html id=”Zg9SUYd6MYA” width=”80%” %}&lt;/p&gt;
+
+&lt;h3 id=&quot;4-next&quot;&gt;4 Next&lt;/h3&gt;
+&lt;p&gt;This was a fun project. It still requires a lot of improvements. If time permits, I would like to build a game of tag, with multiple MiBand controlled robots in gazebo – would be cool!&lt;/p&gt;
+</content>
+<category term="MiBand" />
+<category term="BLE" />
+<category term="ROS" />
+<category term="python" />
+<category term="git" />
+<summary>Coding a Xiaomi Miband Controller for ROS Gazebo Turtlebot3 simulation.</summary>
+</entry>
+<entry>
+<title>Controlling ROS Turtlebot3 with Miband - Part I</title>
+<link href="http://localhost:4000/blog/controlling-ROS-robot-with-miband-hrx-1/" rel="alternate" type="text/html" title="Controlling ROS Turtlebot3 with Miband - Part I" />
+<published>2019-09-05T00:00:00+05:30</published>
+<updated>2019-09-05T00:00:00+05:30</updated>
+<id>http://localhost:4000/blog/controlling-ROS-robot-with-miband-hrx-1</id>
+<content type="html" xml:base="http://localhost:4000/blog/controlling-ROS-robot-with-miband-hrx-1/">&lt;p&gt;I wanted to control my Turtlebot3 gazebo simulations using the Xiaomi MiBand HRX. MiBand uses Bluetooth Low Energy for communication. The major challenge in trying to interface the MiBand HRX with ROS, was understanding the undocumented services and characteristics. Fortunately, there are several python libraries that are written for MiBand2 &amp;amp; 3 models. So, I didn’t have to start from scratch!&lt;/p&gt;
+
+&lt;p&gt;Still, the challenge of finding the right services &amp;amp; values remained. I started by forking &lt;a href=&quot;https://github.com/creotiv/MiBand2&quot;&gt;this&lt;/a&gt; wonderful library by creotiv which used bluepy. I was only interested in reading the accelerometer data.&lt;/p&gt;
+
+&lt;p&gt;Check out the repo &lt;a href=&quot;{{page.gh_repo}}&quot;&gt;here&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;So, let’s begin by identifying the MAC address of the MiBand!&lt;/p&gt;
+
+&lt;h3 id=&quot;1-ble---connecting-and-reading-data&quot;&gt;1. BLE - connecting and reading data&lt;/h3&gt;
+&lt;p&gt;An excellent place to learn about BLE GATT Services and Characteristics would be &lt;a href=&quot;https://www.oreilly.com/library/view/getting-started-with/9781491900550/ch04.html&quot;&gt;here&lt;/a&gt;.&lt;/p&gt;
+&lt;h4 id=&quot;scan-for-available-devices&quot;&gt;Scan for available devices&lt;/h4&gt;
+&lt;div class=&quot;language-sh highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;hcitool lescan
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;The following commands were helpful in identification of services and characteristics specific to HRX bands. Xiaomi doesn’t provide user descriptions for the services and characteristics, which makes it harder. There are plenty of reverse engineered solutions for MiBand2 &amp;amp; 3 which are extremely &lt;a href=&quot;#sources--references&quot;&gt;helpful&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h4 id=&quot;list-services&quot;&gt;List services&lt;/h4&gt;
+&lt;div class=&quot;language-sh highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;gatttool &lt;span class=&quot;nt&quot;&gt;-b&lt;/span&gt; &amp;lt;MAC-ADDRESS&amp;gt; &lt;span class=&quot;nt&quot;&gt;-t&lt;/span&gt; random &lt;span class=&quot;nt&quot;&gt;--primary&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h4 id=&quot;list-characteristics&quot;&gt;List characteristics&lt;/h4&gt;
+&lt;div class=&quot;language-sh highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;gatttool &lt;span class=&quot;nt&quot;&gt;-b&lt;/span&gt; &amp;lt;MAC-ADDRESS&amp;gt; &lt;span class=&quot;nt&quot;&gt;-t&lt;/span&gt; random &lt;span class=&quot;nt&quot;&gt;--characteristics&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h4 id=&quot;auth-and-notifications&quot;&gt;Auth and notifications&lt;/h4&gt;
+&lt;ul&gt;
+  &lt;li&gt;Authentication is same as MiBand2&lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Services &amp;amp; Characteristics of interest (names are arbitrary)&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;SERVICE_MIBAND1 : &quot;0000fee1-0000-1000-8000-00805f9b34fb&quot;&lt;/code&gt;
+        &lt;ul&gt;
+          &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;CHARACTERISTIC_SENSOR_CONTROL : &quot;00000001-0000-3512-2118-0009af100700&quot;&lt;/code&gt;&lt;/li&gt;
+          &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;CHARACTERISTIC_SENSOR_MEASURE : &quot;00000002-0000-3512-2118-0009af100700&quot;&lt;/code&gt;&lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;To receive accelerometer notification
+    &lt;ul&gt;
+      &lt;li&gt;Write without response &lt;code class=&quot;highlighter-rouge&quot;&gt;0x010119&lt;/code&gt; to service &lt;code class=&quot;highlighter-rouge&quot;&gt;0000fee1-0000-1000-8000-00805f9b34fb&lt;/code&gt; characeteristic &lt;code class=&quot;highlighter-rouge&quot;&gt;00000001-0000-3512-2118-0009af100700&lt;/code&gt;&lt;/li&gt;
+      &lt;li&gt;Write without response &lt;code class=&quot;highlighter-rouge&quot;&gt;0x02&lt;/code&gt; to service &lt;code class=&quot;highlighter-rouge&quot;&gt;0000fee1-0000-1000-8000-00805f9b34fb&lt;/code&gt; characeteristic &lt;code class=&quot;highlighter-rouge&quot;&gt;00000001-0000-3512-2118-0009af100700&lt;/code&gt;&lt;/li&gt;
+      &lt;li&gt;Write &lt;code class=&quot;highlighter-rouge&quot;&gt;0x0100&lt;/code&gt; to notification descriptor to enable notification&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;2-processing-accelerometer-data&quot;&gt;2. Processing Accelerometer Data&lt;/h3&gt;
+
+&lt;p&gt;After successfully reading the raw accelerometer data, the next step would be to make sense of it.&lt;/p&gt;
+
+&lt;h4 id=&quot;parsing&quot;&gt;Parsing&lt;/h4&gt;
+&lt;p&gt;The data is received in packets of byte size &lt;code class=&quot;highlighter-rouge&quot;&gt;20&lt;/code&gt;, &lt;code class=&quot;highlighter-rouge&quot;&gt;14&lt;/code&gt; or &lt;code class=&quot;highlighter-rouge&quot;&gt;8&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;Sample: &lt;code class=&quot;highlighter-rouge&quot;&gt;0x0100 0500 8200 0b00 0400 8000 0b00 0300 8100 0b00&lt;/code&gt;&lt;/p&gt;
+
+&lt;table&gt;
+  &lt;thead&gt;
+    &lt;tr&gt;
+      &lt;th style=&quot;text-align: center&quot;&gt;0100&lt;/th&gt;
+      &lt;th style=&quot;text-align: center&quot;&gt;0500&lt;/th&gt;
+      &lt;th style=&quot;text-align: center&quot;&gt;8200&lt;/th&gt;
+      &lt;th style=&quot;text-align: center&quot;&gt;0b00&lt;/th&gt;
+      &lt;th style=&quot;text-align: center&quot;&gt;0400&lt;/th&gt;
+      &lt;th style=&quot;text-align: center&quot;&gt;8000&lt;/th&gt;
+      &lt;th style=&quot;text-align: center&quot;&gt;0b00&lt;/th&gt;
+      &lt;th style=&quot;text-align: center&quot;&gt;0300&lt;/th&gt;
+      &lt;th style=&quot;text-align: center&quot;&gt;8100&lt;/th&gt;
+      &lt;th style=&quot;text-align: center&quot;&gt;0b00&lt;/th&gt;
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;-&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;signed x&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;signed y&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;signed z&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;signed x&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;signed y&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;signed z&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;signed x&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;signed y&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;signed z&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;p&gt;Parsing of raw data is performed by the method &lt;code class=&quot;highlighter-rouge&quot;&gt;_parse_raw_accel()&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;{% highlight python %}
+def _parse_raw_accel(self, bytes):
+    for i in range(int((len(bytes)-2)/6)):
+        g = struct.unpack(‘hhh’, bytes[2 + i * 6:8 + i * 6])
+        try:
+            self.accel_queue.put(g)
+        except Full:
+            self.accel_queue.get_nowait()
+            self.accel_queue.put(g)
+        return g
+{% endhighlight %}
+&lt;a href=&quot;{{page.gh_basepy}}#L147&quot;&gt;view on github&lt;/a&gt;&lt;/p&gt;
+
+&lt;h4 id=&quot;calculating-roll-and-pitch&quot;&gt;Calculating Roll and Pitch&lt;/h4&gt;
+&lt;p&gt;In the absence of linear acceleration, the accelerometer output is a measurement of the rotated
+gravitational field vector and can be used to determine the accelerometer pitch and roll orientation
+angles. The following equations are used to calculate the roll and pitch from the 3 linear accelerations.&lt;/p&gt;
+
+&lt;div class=&quot;box&quot;&gt;
+
+{% raw %}
+  $$tan\phi_{xyz} = \left ( \frac{G_{py}} {G_{pz}} \right )$$
+
+  $$tan\theta_{xyz} = \left ( \frac{-G_{px}} {\sqrt{G_{py}^{2} + G_{pz}^{2}}} \right )$$
+{% endraw %}
+
+&lt;/div&gt;
+
+&lt;p&gt;{% highlight python %}
+roll = math.atan2(gy, gz)
+pitch = math.atan2(-gx, math.sqrt(pow(gy, 2) + pow(gz, 2)))
+{% endhighlight %}
+&lt;a href=&quot;{{page.gh_basepy}}#L267&quot;&gt;view on github&lt;/a&gt;&lt;/p&gt;
+
+&lt;h4 id=&quot;plot&quot;&gt;Plot&lt;/h4&gt;
+&lt;p&gt;&lt;a href=&quot;{{jupyter_NB}}&quot;&gt;Jupyter Notebook&lt;/a&gt;&lt;/p&gt;
+
+&lt;div class=&quot;image main&quot;&gt;
+&lt;img src=&quot;{{page.image2 | absolute_url}}&quot; width=&quot;1200&quot; /&gt;
+&lt;/div&gt;
+
+&lt;h3 id=&quot;3-sources--references&quot;&gt;3. Sources &amp;amp; References&lt;/h3&gt;
+&lt;p&gt;[1] &lt;a href=&quot;https://github.com/leojrfs/miband2&quot;&gt;Base lib provided by Leo Soares&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;[2] &lt;a href=&quot;https://github.com/vshymanskyy/miband2-python-test&quot;&gt;Volodymyr Shymanskyy&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;[3] &lt;a href=&quot;https://github.com/Freeyourgadget/Gadgetbridge/tree/master/app/src/main/java/nodomain/freeyourgadget/gadgetbridge/service/devices/huami/miband2&quot;&gt;Freeyourgadget Team&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;[4] &lt;a href=&quot;https://github.com/Freeyourgadget/Gadgetbridge/issues/63#issuecomment-493740447&quot;&gt;ragcsalo’s Comment&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;[5] &lt;a href=&quot;http://changy-.github.io/articles/xiao-mi-band-protocol-analyze.html&quot;&gt;Xiaomi band protocol analyze&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;[6] &lt;a href=&quot;https://www.nxp.com/docs/en/application-note/AN3461.pdf&quot;&gt;Tilt Sensing Using 3-Axis Accelerometer&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;[7] &lt;a href=&quot;https://github.com/creotiv/MiBand2#donate&quot;&gt;creotiv donate link&lt;/a&gt;&lt;/p&gt;
+
+</content>
+<category term="MiBand" />
+<category term="BLE" />
+<category term="ROS" />
+<category term="python" />
+<summary>Reading raw accelerometer data from a Xiaomi Miband for controllling a ROS Gazebo Turtlebot3 simulation.</summary>
+</entry>
+</feed>
