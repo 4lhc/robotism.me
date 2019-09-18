@@ -2,7 +2,7 @@
 layout: post
 title:  "Controlling ROS Turtlebot3 with Miband - Part I"
 date:   2019-09-05
-excerpt: "Reading raw accelerometer data from a Xiaomi Miband and controllling a ROS simulation bot with it"
+excerpt: "Reading raw accelerometer data from a Xiaomi Miband for controllling a ROS Gazebo Turtlebot3 simulation."
 comments: true
 image: "/images/controlling-ROS-robot-with-miband-hrx-1-img01.png"
 image1: "/images/controlling-ROS-robot-with-miband-hrx-1-img02.png"

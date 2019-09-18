@@ -1,3 +1,11 @@
+GIT
+  remote: https://github.com/4lhc/jekyll-github-sample
+  revision: cd00f99825d17bcfc04b1b14ced54951783d21c9
+  specs:
+    jekyll_github_sample (0.3.1)
+      activesupport (~> 5.0)
+      jekyll (~> 3.0)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -178,6 +186,7 @@ DEPENDENCIES
   jekyll-paginate
   jekyll-seo-tag
   jekyll-sitemap
+  jekyll_github_sample!
   rogue
 
 BUNDLED WITH

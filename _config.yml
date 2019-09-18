@@ -61,6 +61,7 @@ plugins:
   - jekyll-gist
   - jekyll-paginate
   - jekyll-seo-tag
+  - jekyll_github_sample
 
 paginate: 6
 paginate_path: "/blog/page:num/"
