@@ -2,7 +2,7 @@
 <urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
     <url>
-      <loc>http://localhost:4000/blog/controlling-ROS-robot-with-miband-hrx-2/</loc>
+      <loc>https://robotism.me/blog/controlling-ROS-robot-with-miband-hrx-2/</loc>
       
         <lastmod>2019-09-14T00:00:00+05:30</lastmod>
       
@@ -11,7 +11,7 @@
     </url>
   
     <url>
-      <loc>http://localhost:4000/blog/controlling-ROS-robot-with-miband-hrx-1/</loc>
+      <loc>https://robotism.me/blog/controlling-ROS-robot-with-miband-hrx-1/</loc>
       
         <lastmod>2019-09-05T00:00:00+05:30</lastmod>
       
@@ -21,7 +21,7 @@
   
   
     <url>
-      <loc>http://localhost:4000/about/</loc>
+      <loc>https://robotism.me/about/</loc>
        <lastmod>2017-11-02T00:00:00+05:30</lastmod>
       
        <changefreq>weekly</changefreq>
@@ -31,7 +31,7 @@
      </url>
   
     <url>
-      <loc>http://localhost:4000/blog/</loc>
+      <loc>https://robotism.me/blog/</loc>
        <lastmod>2017-11-02T00:00:00+05:30</lastmod>
       
        <changefreq>weekly</changefreq>
@@ -41,7 +41,7 @@
      </url>
   
     <url>
-      <loc>http://localhost:4000/elements/</loc>
+      <loc>https://robotism.me/elements/</loc>
        <lastmod>2017-11-02T00:00:00+05:30</lastmod>
       
        <changefreq>weekly</changefreq>
@@ -51,7 +51,7 @@
      </url>
   
     <url>
-      <loc>http://localhost:4000/</loc>
+      <loc>https://robotism.me/</loc>
        <lastmod>2017-11-02T00:00:00+05:30</lastmod>
       
        <changefreq>weekly</changefreq>
@@ -61,7 +61,7 @@
      </url>
   
     <url>
-      <loc>http://localhost:4000/assets/css/main.css</loc>
+      <loc>https://robotism.me/assets/css/main.css</loc>
        <lastmod>2017-11-10T00:20:35+00:00</lastmod>
       
        <changefreq>weekly</changefreq>
@@ -71,7 +71,7 @@
      </url>
   
     <url>
-      <loc>http://localhost:4000/assets/css/noscript.css</loc>
+      <loc>https://robotism.me/assets/css/noscript.css</loc>
        <lastmod>2017-11-10T00:20:35+00:00</lastmod>
       
        <changefreq>weekly</changefreq>
@@ -81,7 +81,7 @@
      </url>
   
     <url>
-      <loc>http://localhost:4000/sitemap.xml</loc>
+      <loc>https://robotism.me/sitemap.xml</loc>
        <lastmod>2017-11-10T00:20:35+00:00</lastmod>
       
        <changefreq>weekly</changefreq>
@@ -91,7 +91,7 @@
      </url>
   
     <url>
-      <loc>http://localhost:4000/thank-you/</loc>
+      <loc>https://robotism.me/thank-you/</loc>
        <lastmod>2017-11-10T00:20:35+00:00</lastmod>
       
        <changefreq>weekly</changefreq>
@@ -101,7 +101,7 @@
      </url>
   
     <url>
-      <loc>http://localhost:4000/robots.txt</loc>
+      <loc>https://robotism.me/robots.txt</loc>
        <lastmod>2017-11-10T00:20:35+00:00</lastmod>
       
        <changefreq>weekly</changefreq>

@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 <generator uri="http://jekyllrb.com" version="3.6.3">Jekyll</generator>
-<link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" />
-<link href="http://localhost:4000/" rel="alternate" type="text/html" />
-<updated>2019-09-19T01:14:05+05:30</updated>
-<id>http://localhost:4000/</id>
+<link href="https://robotism.me/feed.xml" rel="self" type="application/atom+xml" />
+<link href="https://robotism.me/" rel="alternate" type="text/html" />
+<updated>2019-09-19T06:09:35+05:30</updated>
+<id>https://robotism.me/</id>
 <subtitle>A platform to document my robotics learnings.</subtitle>
 <entry>
 <title>Controlling ROS Turtlebot3 with Miband - Part II</title>
-<link href="http://localhost:4000/blog/controlling-ROS-robot-with-miband-hrx-2/" rel="alternate" type="text/html" title="Controlling ROS Turtlebot3 with Miband - Part II" />
+<link href="https://robotism.me/blog/controlling-ROS-robot-with-miband-hrx-2/" rel="alternate" type="text/html" title="Controlling ROS Turtlebot3 with Miband - Part II" />
 <published>2019-09-14T00:00:00+05:30</published>
 <updated>2019-09-14T00:00:00+05:30</updated>
-<id>http://localhost:4000/blog/controlling-ROS-robot-with-miband-hrx-2</id>
-<content type="html" xml:base="http://localhost:4000/blog/controlling-ROS-robot-with-miband-hrx-2/">&lt;p&gt;After successfully establishing communication &lt;a href=&quot;{% post_url 2019-09-05-controlling-ROS-robot-with-miband-hrx-1 %}&quot;&gt;(read Part I)&lt;/a&gt; with the MiBand HRX, we can start writing the controller node.&lt;/p&gt;
+<id>https://robotism.me/blog/controlling-ROS-robot-with-miband-hrx-2</id>
+<content type="html" xml:base="https://robotism.me/blog/controlling-ROS-robot-with-miband-hrx-2/">&lt;p&gt;After successfully establishing communication &lt;a href=&quot;{% post_url 2019-09-05-controlling-ROS-robot-with-miband-hrx-1 %}&quot;&gt;(read Part I)&lt;/a&gt; with the MiBand HRX, we can start writing the controller node.&lt;/p&gt;
 
 &lt;p&gt;We will start by setting up project ros package.&lt;/p&gt;
 
@@ -87,11 +87,11 @@ python setup.py build &amp;amp;&amp;amp; python setup.py install
 </entry>
 <entry>
 <title>Controlling ROS Turtlebot3 with Miband - Part I</title>
-<link href="http://localhost:4000/blog/controlling-ROS-robot-with-miband-hrx-1/" rel="alternate" type="text/html" title="Controlling ROS Turtlebot3 with Miband - Part I" />
+<link href="https://robotism.me/blog/controlling-ROS-robot-with-miband-hrx-1/" rel="alternate" type="text/html" title="Controlling ROS Turtlebot3 with Miband - Part I" />
 <published>2019-09-05T00:00:00+05:30</published>
 <updated>2019-09-05T00:00:00+05:30</updated>
-<id>http://localhost:4000/blog/controlling-ROS-robot-with-miband-hrx-1</id>
-<content type="html" xml:base="http://localhost:4000/blog/controlling-ROS-robot-with-miband-hrx-1/">&lt;p&gt;I wanted to control my Turtlebot3 gazebo simulations using the Xiaomi MiBand HRX. MiBand uses Bluetooth Low Energy for communication. The major challenge in trying to interface the MiBand HRX with ROS, was understanding the undocumented services and characteristics. Fortunately, there are several python libraries that are written for MiBand2 &amp;amp; 3 models. So, I didn’t have to start from scratch!&lt;/p&gt;
+<id>https://robotism.me/blog/controlling-ROS-robot-with-miband-hrx-1</id>
+<content type="html" xml:base="https://robotism.me/blog/controlling-ROS-robot-with-miband-hrx-1/">&lt;p&gt;I wanted to control my Turtlebot3 gazebo simulations using the Xiaomi MiBand HRX. MiBand uses Bluetooth Low Energy for communication. The major challenge in trying to interface the MiBand HRX with ROS, was understanding the undocumented services and characteristics. Fortunately, there are several python libraries that are written for MiBand2 &amp;amp; 3 models. So, I didn’t have to start from scratch!&lt;/p&gt;
 
 &lt;p&gt;Still, the challenge of finding the right services &amp;amp; values remained. I started by forking &lt;a href=&quot;https://github.com/creotiv/MiBand2&quot;&gt;this&lt;/a&gt; wonderful library by creotiv which used bluepy. I was only interested in reading the accelerometer data.&lt;/p&gt;
 
