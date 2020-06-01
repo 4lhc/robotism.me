@@ -1,0 +1,318 @@
+<!DOCTYPE HTML>
+<!--
+	Massively by HTML5 UP
+	html5up.net | @ajlkn
+  Jekyll integration by somiibo.com
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+    <meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+
+<title>Create a ROS melodic container with singularity</title>
+<meta name="description" content="">
+
+<link rel="apple-touch-icon" sizes="180x180" href="https://robotism.me/assets/icon/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://robotism.me/assets/icon/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="https://robotism.me/assets/icon/favicon-16x16.png">
+<link rel="manifest" href="https://robotism.me/assets/icon/manifest.json">
+<link rel="mask-icon" href="https://robotism.me/assets/icon/safari-pinned-tab.svg" color="#5bbad5">
+<link rel="shortcut icon" href="https://robotism.me/assets/icon/favicon.ico">
+<meta name="msapplication-config" content="https://robotism.me/assets/icon/browserconfig.xml">
+<meta name="theme-color" content="#ffffff">
+
+<!-- CSS -->
+<link rel="stylesheet" href="https://robotism.me/assets/css/main.css" />
+<noscript><link rel="stylesheet" href="https://robotism.me/assets/css/noscript.css" /></noscript>
+<!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Create a ROS melodic container with singularity | Robotism</title>
+<meta name="generator" content="Jekyll v3.6.3" />
+<meta property="og:title" content="Create a ROS melodic container with singularity" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Creating a ROS melodic container with singularity 3.5" />
+<meta property="og:description" content="Creating a ROS melodic container with singularity 3.5" />
+<link rel="canonical" href="https://robotism.me/blog/creating-ROS-melodic-container-with-singularity-3.5/" />
+<meta property="og:url" content="https://robotism.me/blog/creating-ROS-melodic-container-with-singularity-3.5/" />
+<meta property="og:site_name" content="Robotism" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2020-06-01T00:00:00+05:30" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Create a ROS melodic container with singularity" />
+<meta name="twitter:site" content="@" />
+<script type="application/ld+json">
+{"@type":"BlogPosting","headline":"Create a ROS melodic container with singularity","dateModified":"2020-06-01T00:00:00+05:30","datePublished":"2020-06-01T00:00:00+05:30","mainEntityOfPage":{"@type":"WebPage","@id":"https://robotism.me/blog/creating-ROS-melodic-container-with-singularity-3.5/"},"description":"Creating a ROS melodic container with singularity 3.5","url":"https://robotism.me/blog/creating-ROS-melodic-container-with-singularity-3.5/","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+
+	</head>
+	<body class="is-loading">
+
+		<!-- Wrapper -->
+			<div id="wrapper" class="fade-in">
+
+				<!-- Header -->
+        <header id="header">
+          <a href="https://robotism.me/" class="logo">Robotism</a>
+        </header>
+
+				<!-- Nav -->
+					<nav id="nav">
+
+            <ul class="links">
+  <li class=""><a href="https://robotism.me/">Notes</a></li>
+  <li class=""><a href="https://robotism.me/about/">About</a></li>
+</ul>
+
+<ul class="icons">
+  <li><a href="https://github.com/4lhc" class="icon fa-github" rel="nofollow"><span class="label">GitHub</span></a></li>
+  <li><a href="https://www.linkedin.com/in/sreejith-pillai-2628b6155" class="icon fa-linkedin" rel="nofollow"><span class="label">Linkedin</span></a></li>
+  <li><a href="https://www.researchgate.net/profile/Sreejith_S_Pillai2" class="icon fa-researchgate" rel="nofollow"><span class="label">Rg</span></a></li>
+  <!--<li><a href="https://instagram.com/default" class="icon fa-instagram" rel="nofollow"><span class="label">Instagram</span></a></li>-->
+</ul>
+
+						
+					</nav>
+
+				<!-- Main -->
+				<div id="main">
+          <section class="post">
+    				<header class="major">
+      				<span class="date">01 Jun 2020</span>
+      				<h1>Create a ROS melodic container with singularity</h1>
+      				<p>Creating a ROS melodic container with singularity 3.5</p>
+      			</header>
+      			<div class="image main"><img src="" alt=""></div>
+      			<p><p>Singularity can create portable and reproducible ROS environments. Moreover, we can run ROS environments that are unsupported for our distros without having to mess with virtual machines. It is quite easy to set up a singularity container for ROS melodic. We will be using the osrf docker image from <a href="https://hub.docker.com/_/ros">Docker Hub</a>. Before we begin, follow the instructions <a href="">here</a> to install singularity if you haven’t.</p>
+
+<h3 id="creating-a-sandbox">Creating a sandbox</h3>
+<p>It is recommended to run the command below with root permissions.</p>
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">sudo </span>singularity build <span class="nt">--sandbox</span> melodic/ docker://osrf/ros:melodic-desktop-full
+</code></pre></div></div>
+<p>This will create a directory named <code class="highlighter-rouge">melodic</code> inside the current working directory. Once the sandbox is built, we can test it by running <code class="highlighter-rouge">roscore</code>.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>singularity <span class="nb">exec</span> <span class="nt">-p</span> melodic/  bash <span class="nt">-c</span> <span class="s1">'/ros_entrypoint.sh roscore'</span>
+</code></pre></div></div>
+
+<p>Where <code class="highlighter-rouge">ros_entrypoint.sh</code> is a bash script inside the <code class="highlighter-rouge">melodic/</code> sandbox that sources <code class="highlighter-rouge">setup.bash</code> for us.</p>
+
+<h3 id="update-and-modification">Update and modification</h3>
+
+<p>Let’s now proceed by updating the packages (you can also install packages that you need). For this we will use the <code class="highlighter-rouge">shell</code> command.
+Note, that the <code class="highlighter-rouge">--writable</code> option is necessary to mount the container as read-write.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">sudo </span>shell <span class="nt">--writable</span> melodic/
+</code></pre></div></div>
+
+<p>Once we are inside the container shell, we can run <code class="highlighter-rouge">apt update</code> and install our packages. We can also add the update the <code class="highlighter-rouge">/root/.bashrc</code> to our taste. Or, ditch bash altogether and install <code class="highlighter-rouge">zsh</code>.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span> apt update
+<span class="o">&gt;</span> mkdir <span class="nt">-p</span> /root/Projects <span class="c">#if you want to create extra directories</span>
+</code></pre></div></div>
+
+<h3 id="binding-filesystems">Binding filesystems</h3>
+
+<p>By default, singularity will mount the current working directory inside the container, if the directory exists inside. You can use the <code class="highlighter-rouge">--bind</code> option to mount host filesystems to directories inside the container. For example, the following command will start the shell and mount my host system’s <code class="highlighter-rouge">/dev/sda5</code> to  <code class="highlighter-rouge">/root/Projects</code>.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">sudo </span>singularity shell <span class="nt">--bind</span> /dev/sda5:/root/Projects <span class="nt">--bind</span> /run <span class="nt">--writable</span> melodic/
+</code></pre></div></div>
+
+<p>In order to run gui applications, use <code class="highlighter-rouge">--bind /run</code>.</p>
+
+<h3 id="convert-container-format">Convert container format</h3>
+
+<p>Finally, we can create <code class="highlighter-rouge">img</code> file from the <code class="highlighter-rouge">sandbox</code> by running the following command.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">sudo </span>singularity build melodic.img melodic/
+</code></pre></div></div>
+
+<h3 id="building-from-recipe-files">Building from recipe files</h3>
+
+<p>The steps mentioned above can be build easily with a recipe file too.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>#melodic-husky.def
+Bootstrap: docker
+From: osrf/ros:melodic-desktop-full-bionic
+
+%help
+    Singularity container with ROS melodic with husky
+
+%labels
+    Author sj@email.org
+    
+
+%post
+    apt -y update
+    apt -y install ros-melodic-husky-navigation \
+                   ros-melodic-husky-gazebo \
+                   ros-melodic-husky-viz
+    bash -c "source /opt/ros/melodic/setup.bash"
+</code></pre></div></div>
+
+<p>Build the container with the following command</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">sudo </span>singularity build melodic-husky.sif melodic-husky.def
+</code></pre></div></div>
+
+<h3 id="reference">Reference</h3>
+
+<p>[1] <a href="https://stackoverflow.com/questions/55645332/how-to-use-change-directory-cd-and-source-commands-in-a-singularity-recipe">https://stackoverflow.com/questions/55645332/how-to-use-change-directory-cd-and-source-commands-in-a-singularity-recipe</a></p>
+
+<p>[2] <a href="https://sylabs.io/guides/3.1/user-guide/definition_files.html">https://sylabs.io/guides/3.1/user-guide/definition_files.html</a></p>
+</p>
+      		</section>
+
+          <div class="comments-wrapper">
+          <div id="disqus_thread"></div>
+          <script>
+              /**
+               *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+               *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+               */
+
+              var disqus_config = function () {
+                  this.page.url = 'https://robotism.me/blog/creating-ROS-melodic-container-with-singularity-3.5/';  /*Replace PAGE_URL with your page's canonical URL variable*/
+                  this.page.identifier = '/blog/creating-ROS-melodic-container-with-singularity-3.5/'; /*Replace PAGE_IDENTIFIER with your page's unique identifier variable*/
+              };
+
+              (function() {  /* dont endit below this line */
+                  var d = document, s = d.createElement('script');
+
+                  s.src = 'https://robotically.disqus.com/embed.js';
+
+                  s.setAttribute('data-timestamp', +new Date());
+                  (d.head || d.body).appendChild(s);
+              })();
+          </script>
+          <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+        </div><!-- /.comments-wrapper -->
+
+
+					<!-- Footer -->
+						<footer>
+              <ul class="actions">
+                <li><a href="https://robotism.me/blog/" class="button">Notes</a></li>
+              </ul>
+						</footer>
+					</div>
+
+				<!-- Footer -->
+        <footer id="footer">
+  <section>
+    <form id="slapform" method="POST" action="">
+      <div class="field">
+        <label for="name">Name</label>
+        <input type="text" name="name" id="name" />
+      </div>
+      <div class="field">
+        <label for="email">Email</label>
+        <input type="text" name="slap_replyto" id="email" /> <!-- slap_replyto will set the reply-to as the submitter's email! -->
+      </div>
+      <div class="field">
+        <label for="message">Message</label>
+        <textarea name="message" id="message" rows="3"></textarea>
+      </div>
+      <ul class="actions">
+        <li><input type="submit" value="Send Message" /></li>
+      </ul>
+      <input type="hidden" name="slap_redirect" value="https://robotism.me/thank-you" /> <!-- slap_redirect allows you to set a custom redirect/thank you page -->
+    </form>
+  </section>
+  <section class="split contact">
+    <section>
+
+      <h3>Email</h3>
+
+      <p>
+
+      <a id="mailto" href="">Send mail</a></p>
+    </section>
+<script type="text/javascript" language="javascript">
+<!--
+// Email obfuscator script 2.1 by Tim Williams, University of Arizona
+// Random encryption key feature coded by Andrew Moulden
+// This code is freeware provided these four comment lines remain intact
+// A wizard to generate this code is at http://www.jottings.com/obfuscator/
+function testmail()
+{
+    coded = "vlQ3jry@Zc1QX.kAc"
+  key = "rfnDz54FSptNxLEl1RmKTUgb2YO3GBsJXy6ciuwZM8ohC9Wvd7VqkQIHPe0Aja"
+  shift=coded.length
+  link=""
+  for (i=0; i<coded.length; i++) {
+    if (key.indexOf(coded.charAt(i))==-1) {
+      ltr = coded.charAt(i)
+      link += (ltr)
+    }
+    else {
+      ltr = (key.indexOf(coded.charAt(i))-shift+key.length) % key.length
+      link += (key.charAt(ltr))
+    }
+  }
+document.getElementById("slapform").action = "https://api.slapform.com/"+link;
+document.getElementById("mailto").href = "mailto:"+link;
+}
+testmail();
+//-->
+</script><noscript>Sorry, you need Javascript on to email me.</noscript>
+    <section>
+      <h3>Social</h3>
+      <ul class="icons alt">
+        <li><a href="https://www.linkedin.com/in/sreejith-pillai-2628b6155" rel="nofollow"><span class="label">LinkedIn</span></a></li>
+        <li><a href="https://github.com/4lhc"  rel="nofollow"><span class="label">GitHub</span></a></li>
+        <li><a href="https://www.researchgate.net/profile/Sreejith_S_Pillai2" rel="nofollow"><span class="label">ResearchGate</span></a></li>
+      </ul>
+    </section>
+  </section>
+</footer>
+<!-- Copyright -->
+<div id="copyright">
+  <ul><li>&copy; HTML5 UP</li><li>Design by <a href="https://html5up.net" rel="nofollow">HTML5 UP</a></li><li>Jekyll Integration by <a href="https://slapform.com">Slapform</a> </li></ul>
+</div>
+
+
+			</div>
+
+      <!-- Scripts -->
+  		<!-- DYN -->
+<script src="https://robotism.me/assets/js/jquery.min.js"></script>
+<script src="https://robotism.me/assets/js/jquery.scrollex.min.js"></script>
+<script src="https://robotism.me/assets/js/jquery.scrolly.min.js"></script>
+<script src="https://robotism.me/assets/js/skel.min.js"></script>
+<script src="https://robotism.me/assets/js/util.js"></script>
+<script src="https://robotism.me/assets/js/main.js"></script>
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    extensions: [
+      "MathMenu.js",
+      "MathZoom.js",
+      "AssistiveMML.js",
+      "a11y/accessibility-menu.js"
+    ],
+    jax: ["input/TeX", "output/CommonHTML"],
+    TeX: {
+      extensions: [
+        "AMSmath.js",
+        "AMSsymbols.js",
+        "noErrors.js",
+        "noUndefined.js",
+      ]
+    }
+  });
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+
+
+
+			<script async src="https://www.googletagmanager.com/gtag/js?id=default"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments)};
+  gtag('js', new Date());
+
+  gtag('config', 'default');
+</script>
+
+
+	</body>
+</html>
