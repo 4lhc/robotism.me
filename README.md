@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 # jekyll build for https://robotism.me
+=======
+# jekyll source for https://robotism.me
+>>>>>>> sources
 
 ### Theme: Massively
 
