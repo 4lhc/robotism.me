@@ -100,7 +100,6 @@ sudo singularity build melodic-husky.sif melodic-husky.def
 ```
 
 ### Reference
-
 [1] [{{page.ref1}}]({{page.ref1}})
 
 [2] [{{page.ref2}}]({{page.ref2}})
