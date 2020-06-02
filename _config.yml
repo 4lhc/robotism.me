@@ -5,7 +5,7 @@ description:        "A platform to document my robotics learnings."
 locale:             en_US
 baseurl: "" # the subpath of your site, e.g. /blog
 url: "https://robotism.me" # the base hostname & protocol for your site
-tagline: "Notes From My Robotics Learning Quests"
+tagline: "Notes On Robotics"
 
 # Comments
 disqus_shortname:   robotically
