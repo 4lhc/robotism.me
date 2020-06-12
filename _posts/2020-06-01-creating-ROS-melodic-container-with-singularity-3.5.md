@@ -37,7 +37,7 @@ Let's now proceed by updating the packages (you can also install packages that y
 Note, that the `--writable` option is necessary to mount the container as read-write.
 
 ```sh
-sudo shell --writable melodic/
+sudo singularity shell --writable melodic/
 ```
 
 Once we are inside the container shell, we can run `apt update` and install our packages. We can also add the update the `/root/.bashrc` to our taste. Or, ditch bash altogether and install `zsh`.
