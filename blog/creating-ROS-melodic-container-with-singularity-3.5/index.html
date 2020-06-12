@@ -101,7 +101,7 @@
 <p>Let’s now proceed by updating the packages (you can also install packages that you need). For this we will use the <code class="highlighter-rouge">shell</code> command.
 Note, that the <code class="highlighter-rouge">--writable</code> option is necessary to mount the container as read-write.</p>
 
-<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">sudo </span>shell <span class="nt">--writable</span> melodic/
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">sudo </span>singularity shell <span class="nt">--writable</span> melodic/
 </code></pre></div></div>
 
 <p>Once we are inside the container shell, we can run <code class="highlighter-rouge">apt update</code> and install our packages. We can also add the update the <code class="highlighter-rouge">/root/.bashrc</code> to our taste. Or, ditch bash altogether and install <code class="highlighter-rouge">zsh</code>.</p>
