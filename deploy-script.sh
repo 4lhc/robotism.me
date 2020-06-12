@@ -17,3 +17,4 @@ echo "robotism.me" >> CNAME
 git add .
 git commit -m "Scripted build to master"
 git push
+
