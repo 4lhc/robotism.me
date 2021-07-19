@@ -15,15 +15,15 @@ I am Sreejith S, a graduate student in Robotics and Automation. _Robotism_ is a 
 <div class="box">
   <p>
   <ul class="actions">
-  <li><a href="#" class="button">Swarm Intelligence</a></li>
-  <li><a href="#" class="button">Robot Operating System</a></li>
+  <li><a href="#" class="button">Human Robot Interaction</a></li>
+  <li><a href="#" class="button">Human Action Recognition</a></li>
   </ul>
   <ul class="actions">
-  <li><a href="#" class="button">Nonlinear Control Theory</a></li>
+  <li><a href="#" class="button">Computer Vision</a></li>
   <li><a href="#" class="button">Machine Vision</a></li>
   </ul>
   <ul class="actions">
-  <li><a href="#" class="button">Visual SLAM</a></li>
+  <li><a href="#" class="button">Robot Learning</a></li>
   </ul>
   </p>
 </div>
